@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-geist-sans: system-ui, -apple-system, sans-serif;
+  --font-geist-mono: ui-monospace, monospace;
+  /* Branding colors (can be overridden by user settings) */
+  --brand-primary: #f97316;
+  --brand-secondary: #ea580c;
+  --brand-primary-hover: #fb923c;
+  --brand-secondary-hover: #c2410c;
+  --brand-font: system-ui;
+  /* Dark mode only */
+  --bg: #0a0a0a;
+  --bg-elevated: #171717;
+  --bg-muted: #262626;
+  --ink: #fafafa;
+  --ink-muted: #a3a3a3;
+  --ink-subtle: #737373;
+  --accent: var(--brand-primary);
+  --accent-hover: var(--brand-primary-hover);
+  --accent-muted: #431407;
+  --sidebar-bg: #0a0a0a;
+  --sidebar-border: #262626;
+  --sidebar-ink: #fafafa;
+  --sidebar-ink-muted: #a3a3a3;
+  --border: #262626;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--brand-font), var(--font-geist-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Date inputs on invoice canvas: light calendar icon so it’s visible on dark background */
+.invoice-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.8;
+  cursor: pointer;
+}
+.invoice-date-input::-webkit-datetime-edit {
+  color: inherit;
+}
+
+/* Landscape (white bg): date picker with visible calendar icon */
+.invoice-date-input-landscape {
+  border: 1px solid #d4d4d4;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background: #fff;
+  color: #171717;
+}
+.invoice-date-input-landscape::-webkit-calendar-picker-indicator {
+  opacity: 0.8;
+  cursor: pointer;
+}
+.invoice-date-input-landscape::-webkit-datetime-edit {
+  color: #171717;
+}
+
+@layer utilities {
+  .focus-ring {
+    @apply outline-none ring-2 ring-offset-2 dark:ring-offset-black;
+    ring-color: var(--brand-primary);
+    ring-opacity: 0.5;
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-102;
+  }
+  
+  /* Brand-aware button styles */
+  .btn-brand {
+    background-color: var(--brand-primary);
+    color: white;
+  }
+  .btn-brand:hover {
+    background-color: var(--brand-primary-hover);
+  }
+  
+  /* Template card animations */
+  .template-card {
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .template-card:hover {
+    transform: translateY(-2px);
+  }
+  
+  .template-card.selected {
+    box-shadow: 0 0 0 2px var(--brand-primary),
+                0 8px 16px rgba(249, 115, 22, 0.1);
+  }
+  
+  /* Dashboard Grid Styles */
+  .dashboard-grid {
+    position: relative;
+  }
+  
+  .react-grid-item {
+    transition: all 200ms ease;
+    transition-property: left, top, width, height;
+  }
+  
+  .react-grid-item.react-grid-placeholder {
+    background: rgb(249 115 22 / 0.2);
+    opacity: 0.2;
+    transition-duration: 100ms;
+    z-index: 2;
+    border-radius: 0.75rem;
+    border: 2px dashed rgb(249 115 22);
+  }
+  
+  .react-grid-item > .react-resizable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .react-grid-item > .react-resizable-handle::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid rgba(249, 115, 22, 0.4);
+    border-bottom: 2px solid rgba(249, 115, 22, 0.4);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-sw {
+    bottom: 0;
+    left: 0;
+    cursor: sw-resize;
+    transform: rotate(90deg);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-nw {
+    top: 0;
+    left: 0;
+    cursor: nw-resize;
+    transform: rotate(180deg);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-ne {
+    top: 0;
+    right: 0;
+    cursor: ne-resize;
+    transform: rotate(270deg);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-w,
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-e {
+    top: 50%;
+    margin-top: -10px;
+    cursor: ew-resize;
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-w {
+    left: 0;
+    transform: rotate(135deg);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-e {
+    right: 0;
+    transform: rotate(315deg);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-n,
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-s {
+    left: 50%;
+    margin-left: -10px;
+    cursor: ns-resize;
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-n {
+    top: 0;
+    transform: rotate(225deg);
+  }
+  
+  .react-grid-item > .react-resizable-handle.react-resizable-handle-s {
+    bottom: 0;
+    transform: rotate(45deg);
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invoice-preview-print,
+  .invoice-preview-print * {
+    visibility: visible !important;
+  }
+  .invoice-preview-print {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background: white !important;
+    padding: 0 !important;
+  }
+  /* Keep invoice design in PDF: same colors and layout */
+  .invoice-preview-print .invoice-print-document {
+    max-width: none !important;
+    width: 210mm !important; /* A4 */
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  .invoice-preview-print .invoice-canvas-print {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+  }
+}

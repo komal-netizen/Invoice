@@ -1,0 +1,50 @@
+{
+  "display_information": {
+    "name": "Invoice Platform Tasks",
+    "description": "Create and manage tasks directly from Slack",
+    "background_color": "#1a1a1a"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Invoice Platform",
+      "always_online": true
+    },
+    "slash_commands": [
+      {
+        "command": "/create-task",
+        "url": "https://your-domain.com/api/slack/commands/create-task",
+        "description": "Create a new task",
+        "usage_hint": "[task description]",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "redirect_urls": [
+      "https://your-domain.com/api/slack/oauth"
+    ],
+    "scopes": {
+      "bot": [
+        "chat:write",
+        "commands",
+        "im:history",
+        "channels:history",
+        "groups:history"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "request_url": "https://your-domain.com/api/slack/events",
+      "bot_events": []
+    },
+    "interactivity": {
+      "is_enabled": true,
+      "request_url": "https://your-domain.com/api/slack/interactions",
+      "message_menu_options_url": "https://your-domain.com/api/slack/interactions"
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}
