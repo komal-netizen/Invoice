@@ -23,22 +23,29 @@ const PRIORITY_CLASS: Record<TaskPriority, string> = {
   urgent: "bg-red-500/20 text-red-400",
 };
 
+// Loading component
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-neutral-800/80 dark:bg-neutral-800/80">
+      <div className="mx-auto max-w-6xl px-6 py-8">
+        <h1 className="text-2xl font-semibold text-white">Task Boards</h1>
+        <div className="mt-8 flex min-h-[200px] items-center justify-center">
+          <p className="text-neutral-500">Loading...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BoardsPage() {
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return (
-      <div className="min-h-screen bg-neutral-800/80 dark:bg-neutral-800/80">
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <h1 className="text-2xl font-semibold text-white">Task Boards</h1>
-          <div className="mt-8 flex min-h-[200px] items-center justify-center">
-            <p className="text-neutral-500">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return <BoardsPageContent />;

@@ -10,17 +10,33 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const settings = useStore((s) => s.settings);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-neutral-950 relative" suppressHydrationWarning>
+        <Sidebar />
+        <main className="relative z-0 pt-20 lg:pt-0 lg:pl-64 min-h-screen flex items-center justify-center">
+          <p className="text-neutral-500 text-sm">Loading...</p>
+        </main>
+      </div>
+    );
+  }
+
+  return <DashboardLayoutContent>{children}</DashboardLayoutContent>;
+}
+
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+  const settings = useStore((s) => s.settings);
 
   // Apply platform-wide branding
   const applyBranding = true;
 
   return (
     <>
-      {mounted && applyBranding && (
+      {applyBranding && (
         <>
           <style dangerouslySetInnerHTML={{
             __html: `

@@ -5,6 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/lib/store";
 
+// Same on server and client to avoid hydration mismatch
+const DEFAULT_EXPANDED_SECTIONS: Record<string, boolean> = {
+  "overview": true,
+  "client-management": true,
+  "invoicing": true,
+  "team": true,
+  "system": false,
+};
+
 // Navigation structure with collapsible sections
 const navSections = [
   { 
@@ -219,47 +228,41 @@ function ChevronIcon({ className, isOpen }: { className?: string; isOpen: boolea
 
 export function Sidebar() {
   const pathname = usePathname();
-  const settings = useStore((s) => s.settings);
+  const [mounted, setMounted] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  
+  const settings = useStore((s) => mounted ? s.settings : null);
   const teamSectionLabel = settings?.teamSectionLabel ?? "Team";
   const myTasksLabel = settings?.myTasksLabel ?? "My Tasks";
   const logoUrl = settings?.business?.logoUrl;
   const companyName = settings?.business?.name || "Invoice";
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  
-  // Collapsible sections state - store in localStorage
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("sidebar-expanded-sections");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          return {
-            "overview": true,
-            "client-management": true,
-            "invoicing": true,
-            "team": true,
-            "system": false,
-          };
-        }
+
+  useEffect(() => setMounted(true), []);
+
+  // Collapsible sections: same initial state on server and client to avoid hydration mismatch
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(DEFAULT_EXPANDED_SECTIONS);
+
+  // After mount: load expanded sections from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebar-expanded-sections");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Record<string, boolean>;
+        setExpandedSections((prev) => ({ ...DEFAULT_EXPANDED_SECTIONS, ...parsed }));
+      } catch {
+        /* keep default */
       }
     }
-    return {
-      "overview": true,
-      "client-management": true,
-      "invoicing": true,
-      "team": true,
-      "system": false,
-    };
-  });
+  }, []);
 
-  // Save expanded sections to localStorage
+  // Save expanded sections to localStorage when they change (client-only)
   useEffect(() => {
+    if (!mounted) return;
     localStorage.setItem("sidebar-expanded-sections", JSON.stringify(expandedSections));
-  }, [expandedSections]);
+  }, [mounted, expandedSections]);
 
-  // Load theme from localStorage on mount
+  // Load theme from localStorage on mount (client-only)
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     if (savedTheme) {

@@ -1,0 +1,206 @@
+// Invoice Platform - Backend schema
+// PostgreSQL (DATABASE_URL in .env).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id                String   @id @default(cuid())
+  code              String?
+  companyName       String
+  contactName       String
+  email             String
+  logo              String?  // base64 or URL
+  tags              String   // JSON array of ClientTag
+  status            String   @default("active") // active | archived
+  website           String?
+  phone             String?
+  address           String?  // JSON Address
+  paymentTerms      String?
+  currency          String?
+  taxId             String?
+  customFieldValues String?  // JSON CustomFieldValue[]
+  boardToken        String?  @unique
+  boardEnabled      Boolean  @default(false)
+  boardWelcomeMessage String?
+  boardTokenCreatedAt String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  projects          Project[]
+  clientResources   ClientResource[]
+}
+
+model ClientResource {
+  id          String   @id @default(cuid())
+  clientId    String
+  type        String   // file | link | note | image | video
+  title       String
+  description String?
+  url         String?
+  content     String?
+  fileSize    Int?
+  mimeType    String?
+  isPinned    Boolean  @default(false)
+  order       Int      @default(0)
+  thumbnailUrl String?
+  category    String?
+  projectId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id                 String   @id @default(cuid())
+  clientId           String
+  name               String
+  description        String?
+  status             String   @default("active") // active | completed | on_hold | planning
+  totalValue         Float?
+  invoicedAmount     Float?
+  paidAmount         Float?
+  startDate          String?
+  dueDate            String?
+  defaultBillingRate Float?
+  billingCurrency    String?
+  projectManagerId   String?
+  leadDeveloperId    String?
+  memberIds         String?   // JSON string[]
+  createdAt          DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  boards   Board[]
+}
+
+model Board {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  background  String?
+  projectId   String?
+  isSaved     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project    Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  lists      BoardList[]
+  tasks      BoardTask[]
+}
+
+model BoardList {
+  id        String   @id @default(cuid())
+  boardId   String
+  name      String
+  order     Int      @default(0)
+  wipLimit  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks BoardTask[]
+}
+
+model BoardTask {
+  id            String   @id @default(cuid())
+  listId        String
+  boardId       String
+  title         String
+  description   String?
+  priority      String   @default("medium") // low | medium | high | urgent
+  dueDate       String?
+  dueDateTime   String?
+  assigneeId    String?
+  assignee      String?
+  assigneeIds   String?   // JSON string[]
+  estimatedHours Float?
+  order         Int      @default(0)
+  archivedAt    String?
+  completedAt   String?
+  clientId      String?
+  projectId     String?
+  labelIds      String?   // JSON string[]
+  labels        String?   // JSON string[] (legacy)
+  checklist     String?   // JSON TaskChecklistItem[]
+  billable      Boolean  @default(false)
+  serviceId     String?
+  invoiceId     String?
+  parentTaskId  String?
+  approvalStatus String?
+  reviewNotes   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  list BoardList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  board Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id                   String   @id @default(cuid())
+  invoiceNumber        String
+  clientId             String
+  projectId            String?
+  status               String   // draft | pending | paid | overdue | cancelled
+  issueDate           String
+  dueDate              String
+  lineItems            String   // JSON LineItem[]
+  subtotal             Float
+  taxRate              Float
+  taxName              String
+  taxAmount            Float
+  discountType         String   // none | percent | fixed
+  discountValue        Float
+  discountAmount       Float
+  total                Float
+  currency             String
+  paymentMethods       String   // JSON string[]
+  paymentDetails       String?
+  lateFeeEnabled       Boolean  @default(false)
+  lateFeePercent       Float?
+  lateFeePolicy        String?
+  notes                String?
+  referenceNumber      String?
+  viewToken            String?  @unique
+  termsAndConditions   String?
+  headerText           String?
+  footerText           String?
+  template             String?
+  showLogo             Boolean  @default(true)
+  showHeaderImage      Boolean  @default(false)
+  headerImageUrl       String?
+  applyTax             Boolean  @default(true)
+  displayTaxId         Boolean  @default(false)
+  shippingAddress      Boolean  @default(false)
+  showReferenceNumber   Boolean  @default(false)
+  showUnits            Boolean  @default(true)
+  backgroundColor      String?
+  backgroundImageUrl   String?
+  headingFontSize      Int?
+  headingAlignment     String?
+  headingColor         String?
+  headingBackgroundColor String?
+  logoUrl              String?
+  sectionOrder         String?
+  customBlocks         String?
+  recurringConfig      String?
+  sentAt               String?
+  paidAt               String?
+  lastReminderAt       String?
+  createdAt            DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model AppSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g. "main"
+  value     String   // JSON blob of Settings
+  updatedAt DateTime @updatedAt
+}
