@@ -54,6 +54,7 @@ export default function InvoicesPage() {
   const [reminderModalInvoiceId, setReminderModalInvoiceId] = useState<string | null>(null);
   const [sortField, setSortField] = useState<string>("updatedAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleSort = (field: string) => {
@@ -150,6 +151,9 @@ export default function InvoicesPage() {
     if (clientFilter === "all") return projects;
     return projects.filter((p) => p.clientId === clientFilter);
   }, [projects, clientFilter]);
+
+  const hasActiveFilters = statusFilter !== "all" || clientFilter !== "all" || projectFilter !== "all";
+  const activeFilterCount = [statusFilter !== "all", clientFilter !== "all", projectFilter !== "all"].filter(Boolean).length;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -298,7 +302,7 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
         <input
           type="search"
           placeholder="Search in all"
@@ -306,45 +310,158 @@ export default function InvoicesPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="min-w-[220px] rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500"
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-        >
-          <option value="all">All statuses</option>
-          {INVOICE_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
-        <select
-          value={clientFilter}
-          onChange={(e) => {
-            setClientFilter(e.target.value);
-            setProjectFilter("all");
-          }}
-          className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-        >
-          <option value="all">All clients</option>
-          {clients.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.companyName}
-            </option>
-          ))}
-        </select>
-        <select
-          value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-        >
-          <option value="all">All projects</option>
-          {projectsForClientFilter.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setFilterMenuOpen(!filterMenuOpen)}
+            className={`relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${
+              hasActiveFilters
+                ? "border-orange-500 bg-orange-500 text-white hover:bg-orange-400"
+                : "border-neutral-600 bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-white dark:border-neutral-600 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:hover:text-white"
+            }`}
+            title="Filter invoices"
+            aria-label="Filter invoices"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+            </svg>
+            {hasActiveFilters && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-xs font-medium text-white">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          {filterMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setFilterMenuOpen(false)} aria-hidden="true" />
+              <div className="absolute left-0 top-full z-50 mt-2 w-56 rounded-lg border border-neutral-700 bg-neutral-900 py-2 shadow-xl max-h-96 overflow-y-auto">
+                <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  Filter by Status
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter("all")}
+                  className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
+                    statusFilter === "all" ? "bg-orange-500/10 text-orange-400" : "text-neutral-200 hover:bg-neutral-800"
+                  }`}
+                >
+                  <span>All statuses</span>
+                  {statusFilter === "all" && (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+                {INVOICE_STATUSES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatusFilter(s)}
+                    className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
+                      statusFilter === s ? "bg-orange-500/10 text-orange-400" : "text-neutral-200 hover:bg-neutral-800"
+                    }`}
+                  >
+                    <span>{STATUS_LABELS[s]}</span>
+                    {statusFilter === s && (
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+
+                <div className="my-2 border-t border-neutral-800" />
+                <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  Filter by Client
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setClientFilter("all"); setProjectFilter("all"); }}
+                  className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
+                    clientFilter === "all" ? "bg-orange-500/10 text-orange-400" : "text-neutral-200 hover:bg-neutral-800"
+                  }`}
+                >
+                  <span>All clients</span>
+                  {clientFilter === "all" && (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+                {clients.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => { setClientFilter(c.id); setProjectFilter("all"); }}
+                    className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
+                      clientFilter === c.id ? "bg-orange-500/10 text-orange-400" : "text-neutral-200 hover:bg-neutral-800"
+                    }`}
+                  >
+                    <span className="truncate">{c.companyName}</span>
+                    {clientFilter === c.id && (
+                      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+
+                <div className="my-2 border-t border-neutral-800" />
+                <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  Filter by Project
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setProjectFilter("all")}
+                  className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
+                    projectFilter === "all" ? "bg-orange-500/10 text-orange-400" : "text-neutral-200 hover:bg-neutral-800"
+                  }`}
+                >
+                  <span>All projects</span>
+                  {projectFilter === "all" && (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+                {projectsForClientFilter.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setProjectFilter(p.id)}
+                    className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
+                      projectFilter === p.id ? "bg-orange-500/10 text-orange-400" : "text-neutral-200 hover:bg-neutral-800"
+                    }`}
+                  >
+                    <span className="truncate">{p.name}</span>
+                    {projectFilter === p.id && (
+                      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+
+                {hasActiveFilters && (
+                  <>
+                    <div className="my-2 border-t border-neutral-800" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter("all");
+                        setClientFilter("all");
+                        setProjectFilter("all");
+                      }}
+                      className="w-full px-4 py-2 text-sm text-orange-400 hover:bg-neutral-800 text-center"
+                    >
+                      Clear all filters
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {mounted && dueForReminder.length > 0 && (

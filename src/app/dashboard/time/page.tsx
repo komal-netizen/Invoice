@@ -533,36 +533,6 @@ function TimeTrackingContent() {
             )}
           </div>
 
-          <button
-            type="button"
-            className="rounded-lg border border-neutral-600 bg-neutral-800 p-2.5 text-neutral-400 hover:bg-neutral-700 hover:text-white"
-            aria-label="Link"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            className="rounded-lg border border-neutral-600 bg-neutral-800 p-2.5 text-neutral-400 hover:bg-neutral-700 hover:text-white"
-            aria-label="Menu view"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            className="rounded-lg border border-neutral-600 bg-neutral-800 p-2.5 text-neutral-400 hover:bg-neutral-700 hover:text-white"
-            aria-label="Calendar"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </button>
-
           {/* Primary Action */}
           <button
             onClick={() => setModalOpen(true)}
